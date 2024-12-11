@@ -1,7 +1,9 @@
+// external imports
 const express = require('express');
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
+// internal imports
 const connectDB = require('./config/database');
 const swaggerDefinition = require('../swaggerDef');
 const authRoutes = require('./routes/auth.routes');
@@ -13,7 +15,7 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); // req.body will now contain the parsed JSON data
 
 // Connect to Database
 connectDB()
@@ -28,13 +30,19 @@ const specs = swaggerJsdoc({
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 // Routes
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authRoutes); //provides user with token 
 app.use('/api/availability', availabilityRoutes);
 app.use('/api/appointments', appointmentRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+});
+
+// global error handler
+app.use((err, _, res, __) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke! ' + err.message);
 });
 
 module.exports = app;

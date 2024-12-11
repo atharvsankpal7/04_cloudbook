@@ -1,20 +1,22 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
+const { verifyToken } = require('../utils/jwt.utils');
 
 exports.authenticate = async (req, res, next) => {
   try {
+    
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
-      return res.status(401).json({ message: 'Authentication required' });
+      return res.status(401).json({ message: 'Unauthorized Access' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId);
+    const decoded = verifyToken(token);
+    const user = await User.findById(decoded.userId, "-password"); // fetch the user from the database
     if (!user) {
-      return res.status(401).json({ message: 'User not found' });
+      return res.status(401).json({ message: 'Unauthorized Access' });
     }
 
-    req.user = user;
+    req.user = user; // append the user object from the database into the request object
     next();
   } catch (error) {
     res.status(401).json({ message: 'Invalid token' });

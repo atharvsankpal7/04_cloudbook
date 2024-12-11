@@ -13,7 +13,7 @@ router.post('/register', [
 
 router.post('/login', [
   body('email').isEmail(),
-  body('password').notEmpty()
+  body('password').isLength({ min: 6 })
 ], authController.login);
 
 module.exports = router;

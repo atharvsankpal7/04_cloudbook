@@ -13,8 +13,9 @@ exports.registerUser = async (userData) => {
 };
 
 exports.loginUser = async (email, password) => {
-  const user = await User.findOne({ email });
-  if (!user || !(await user.comparePassword(password))) {
+  const user = await User.findOne({ email }); // to check weather user exists in database or not
+  
+  if (!user || !(await user.comparePassword(password))) { // if user is not present or password is wrong then throw error
     throw new Error('Invalid credentials');
   }
   return generateToken(user._id);
